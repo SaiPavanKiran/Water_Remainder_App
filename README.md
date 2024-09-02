@@ -45,6 +45,10 @@ To run this app, ensure the following permissions are granted based on your Andr
     - Connect your Android device via USB or use an emulator.
     - Click on the `Run` button or use `Shift + F10` to run the app on your selected device.
 
+###  Output APK
+
+The output APK file is located at `outputs/apk/debug/app-debug.apk` in the project directory. You can download and install this APK on your phone to use the app.
+
 ### 🚀 Usage Instructions
 
 1. **Grant Notification Permission**  
