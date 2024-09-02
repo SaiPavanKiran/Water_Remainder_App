@@ -33,7 +33,7 @@ class TimelyWorker(
         val workManager = WorkManager.getInstance(applicationContext)
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
             .addTag("water_remainder")
-//                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
         if(LocalTime.now().hour == 23 || LocalTime.now().hour in 0..4){
             applicationContext.contentResolver.delete(
