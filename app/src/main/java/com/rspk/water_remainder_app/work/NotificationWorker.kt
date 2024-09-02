@@ -6,13 +6,15 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.rspk.water_remainder_app.MainActivity
 import com.rspk.water_remainder_app.R
+import kotlinx.coroutines.time.delay
+import java.time.Duration
 
 class NotificationWorker(
     context: Context,
@@ -31,16 +33,19 @@ class NotificationWorker(
 
     private val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-//    override suspend fun getForegroundInfo(): ForegroundInfo {
-//        return ForegroundInfo(
-//            NOTIFICATION_ID,
-//            notification()
-//        )
-//    }
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return ForegroundInfo(
+            NOTIFICATION_ID,
+            notification()
+        )
+    }
 
     override suspend fun doWork(): Result {
-        notification()
-        notificationManager.notify(NOTIFICATION_ID, notification())
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            notificationManager.notify(NOTIFICATION_ID,notification())
+        }else{
+            delay(Duration.ofMinutes(5))
+        }
         return Result.success()
     }
 

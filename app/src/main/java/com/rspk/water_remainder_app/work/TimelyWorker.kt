@@ -8,13 +8,16 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
+import androidx.work.BackoffPolicy
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.rspk.water_remainder_app.R
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.time.LocalTime
 import java.util.Locale
 
@@ -34,6 +37,10 @@ class TimelyWorker(
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
             .addTag("water_remainder")
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setBackoffCriteria(
+                backoffPolicy = BackoffPolicy.LINEAR,
+                duration = Duration.ofSeconds(15)
+            )
             .build()
         if(LocalTime.now().hour == 23 || LocalTime.now().hour in 0..4){
             applicationContext.contentResolver.delete(
@@ -46,7 +53,7 @@ class TimelyWorker(
             LocalTime.of(getTimeInPatternForHour(endTime),getTimeInPatternForMinute(endTime))){
             setForeground(createForeground(title = "Water Remainder", text = "running..."))
             workManager.enqueue(workRequest)
-            externalStorage(currentTime= currentTime, waterAmount = waterAmount, action = "No Action")
+            externalStorage(currentTime= currentTime, waterAmount = waterAmount)
             Result.success()
         }else {
             setForeground(createForeground(title = "Checking Criteria" , text = "Criteria not met"))
@@ -54,7 +61,7 @@ class TimelyWorker(
         }
     }
 
-    private fun externalStorage(currentTime:Long,waterAmount:Int,action:String){
+    private fun externalStorage(currentTime:Long,waterAmount:Int){
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns._ID,currentTime)
             put(MediaStore.MediaColumns.DISPLAY_NAME,"daily_list ")
@@ -91,7 +98,7 @@ class TimelyWorker(
         // Write data to the file (append if it exists)
         fileUri?.let { uri ->
             applicationContext.contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
-                outputStream.write("$currentTime:$waterAmount:$action\n".toByteArray())
+                outputStream.write("$currentTime:$waterAmount:No Action\n".toByteArray())
             }
         }
 
