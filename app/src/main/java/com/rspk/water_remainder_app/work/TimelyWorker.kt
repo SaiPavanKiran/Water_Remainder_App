@@ -16,6 +16,9 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.rspk.water_remainder_app.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalTime
@@ -51,9 +54,15 @@ class TimelyWorker(
         }
         return if(LocalTime.now() in LocalTime.of(getTimeInPatternForHour(startTime),getTimeInPatternForMinute(startTime))..
             LocalTime.of(getTimeInPatternForHour(endTime),getTimeInPatternForMinute(endTime))){
-            setForeground(createForeground(title = "Water Remainder", text = "running..."))
-            workManager.enqueue(workRequest)
-            externalStorage(currentTime= currentTime, waterAmount = waterAmount)
+            withContext(Dispatchers.IO){
+                coroutineScope {
+                    setForeground(createForeground(title = "Water Remainder", text = "running..."))
+                }
+                coroutineScope {
+                    workManager.enqueue(workRequest)
+                }
+                externalStorage(currentTime= currentTime, waterAmount = waterAmount)
+            }
             Result.success()
         }else {
             setForeground(createForeground(title = "Checking Criteria" , text = "Criteria not met"))
