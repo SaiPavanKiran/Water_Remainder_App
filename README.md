@@ -9,7 +9,7 @@ The **Water Reminder App** helps you stay hydrated by sending customizable remin
 
 ## App Screenshots Below are some screenshots of the Water Reminder App in action: 
 
-<div align="center"> <table> <tr> <td align="center"> <img src="Screenshot_20240901-185518_Bubbly.jpg" alt="Home Screen" width="250" /> <br /> <strong>Home Screen</strong> </td> <td align="center"> <img src="Screenshot_20240901-185524_Bubbly.jpg" alt="Reminder Settings" width="250" /> <br /> <strong>Reminder Settings</strong> </td> <td align="center"> <img src="Screenshot_20240901-185558_Bubbly.jpg" alt="Activity Tracking" width="250" /> <br /> <strong>Activity Tracking</strong> </td> </tr> </table> </div>
+<div align="center"> <table> <tr> <td align="center"> <img src="Screenshot_20240901-185518_Bubbly.jpg" alt="Home Screen" width="250" /> <br /> <strong>Home Screen</strong> </td> <td align="center"> <img src="Screenshot_20240901-185524_Bubbly.jpg" alt="Reminder Settings" width="250" /> <br /> <strong>Home Cards</strong> </td> <td align="center"> <img src="Screenshot_20240901-185558_Bubbly.jpg" alt="Activity Tracking" width="250" /> <br /> <strong>Activity Tracking</strong> </td> </tr> </table> </div>
 
 ## 📋 Requirements
 
@@ -65,6 +65,11 @@ To run this app, ensure the following permissions are granted based on your Andr
         - On the **left side**, you will find individual activity cards.
     - **Top-left corner**: A back button to return to the home screen.
     - **Top-right corner**: A small notice from the developers 😉.
+  
+## Known Issues
+
+- The app may send reminders with a delay of two to three minutes or at irregular intervals on some devices.
+- The app may not work correctly on some devices, especially those running Android 12 and 12.1.
 
 ## 🛠️ Troubleshooting
 
