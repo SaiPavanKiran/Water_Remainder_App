@@ -1,6 +1,5 @@
 package com.rspk.water_remainder_app.work
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -10,26 +9,17 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
-import android.media.AudioManager
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.work.BackoffPolicy
 import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.rspk.water_remainder_app.MainActivity
 import com.rspk.water_remainder_app.R
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.time.Duration
 import java.time.LocalTime
 import java.util.Locale
 
