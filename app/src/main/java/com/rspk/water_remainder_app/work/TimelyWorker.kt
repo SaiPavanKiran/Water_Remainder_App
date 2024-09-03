@@ -74,7 +74,7 @@ class TimelyWorker(
             Result.success()
         }else {
             if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
-            setForeground(createForeground(title = "Checking Criteria" , text = "Criteria not met"))
+                setForeground(createForeground(title = "Checking Criteria" , text = "Criteria not met"))
             Result.success()
         }
     }
