@@ -55,7 +55,7 @@ fun ScheduleButtons(
     val workRequest = PeriodicWorkRequestBuilder<TimelyWorker>(timeToRemainder.toLongOrNull() ?: 15, TimeUnit.MINUTES,
         timeToRemainder.toLongOrNull() ?: 15, TimeUnit.MINUTES)
         .setConstraints(constraints)
-        .setInitialDelay(mainScreenViewModel.calculateInitialDelay(startTime, timeToRemainder.toLongOrNull() ?: 15L), TimeUnit.MILLISECONDS)
+//        .setInitialDelay(mainScreenViewModel.calculateInitialDelay(startTime, timeToRemainder.toLongOrNull() ?: 15L), TimeUnit.MILLISECONDS)
         .addTag(WORKER_TAG)
         .setInputData(
             workDataOf(
