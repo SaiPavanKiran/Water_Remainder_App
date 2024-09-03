@@ -8,6 +8,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.BackoffPolicy
 import androidx.work.CoroutineWorker
@@ -61,7 +62,9 @@ class TimelyWorker(
             LocalTime.of(getTimeInPatternForHour(endTime),getTimeInPatternForMinute(endTime))){
             withContext(Dispatchers.IO){
                 coroutineScope {
-                    setForeground(createForeground(title = "Water Remainder", text = "running..."))
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S){
+                        setForeground(createForeground(title = "Water Remainder", text = "running..."))
+                    }
                 }
                 coroutineScope {
                     workManager.enqueue(workRequest)
@@ -70,6 +73,7 @@ class TimelyWorker(
             }
             Result.success()
         }else {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
             setForeground(createForeground(title = "Checking Criteria" , text = "Criteria not met"))
             Result.success()
         }
