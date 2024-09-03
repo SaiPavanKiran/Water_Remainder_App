@@ -56,13 +56,11 @@ class TimelyWorker(
             }
             Result.success()
         }else {
-            if(LocalTime.now().hour == 23 || LocalTime.now().hour in 0..4){
-                applicationContext.contentResolver.delete(
-                    MediaStore.Files.getContentUri("external"),
-                    "${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?",
-                    arrayOf("daily_list %")
-                )
-            }
+            applicationContext.contentResolver.delete(
+                MediaStore.Files.getContentUri("external"),
+                "${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?",
+                arrayOf("daily_list %")
+            )
             Result.success()
         }
     }
