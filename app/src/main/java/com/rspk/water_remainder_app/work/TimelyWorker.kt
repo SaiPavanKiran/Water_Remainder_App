@@ -138,6 +138,14 @@ class TimelyWorker(
     private fun notification(){
         notificationChannel()
 
+        val soundUri: Uri = Uri.Builder()
+            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+            .authority(applicationContext.resources.getResourcePackageName(R.raw.notify))
+            .appendPath(applicationContext.resources.getResourceTypeName(R.raw.notify))
+            .appendPath(applicationContext.resources.getResourceEntryName(R.raw.notify))
+            .build()
+
+
         val pendingIntent = PendingIntent.getActivity(applicationContext, ACTIVITY_REQUEST_CODE,
             Intent(applicationContext, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE)
@@ -153,6 +161,7 @@ class TimelyWorker(
             .setContentText("It's Time to Drink Water")
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setSound(soundUri)
             .addAction(R.drawable.baseline_send_24,applicationContext.resources.getString(R.string.done),doneActionPendingIntent)
             .build()
 
