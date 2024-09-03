@@ -6,6 +6,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
 import androidx.work.BackoffPolicy
@@ -39,11 +40,15 @@ class TimelyWorker(
         val workManager = WorkManager.getInstance(applicationContext)
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
             .addTag("water_remainder")
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setBackoffCriteria(
-                backoffPolicy = BackoffPolicy.LINEAR,
-                duration = Duration.ofSeconds(15)
-            )
+            .apply {
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S){
+                    this@apply.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                        .setBackoffCriteria(
+                            backoffPolicy = BackoffPolicy.LINEAR,
+                            duration = Duration.ofSeconds(15)
+                        )
+                }
+            }
             .build()
         if(LocalTime.now().hour == 23 || LocalTime.now().hour in 0..4){
             applicationContext.contentResolver.delete(
