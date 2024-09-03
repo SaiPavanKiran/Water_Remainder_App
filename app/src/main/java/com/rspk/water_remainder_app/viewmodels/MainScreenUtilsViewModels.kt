@@ -23,10 +23,10 @@ class MainScreenUtilsViewModels @Inject constructor(
     private val timingsStore: TimingsStore
 ):ViewModel() {
     val timePattern: Pattern = Pattern.compile("^(?:[01]\\d|2[0-3]):[0-5]\\d$")
-    var startTimeTextField by mutableStateOf("00:00")
-    var startTime by mutableLongStateOf(getTimeInMillis(hour = 0, minute = 0))
-    var endTime by mutableLongStateOf(getTimeInMillis(hour = 23, minute = 59))
-    var endTimeTextField by mutableStateOf("23:59")
+    var startTimeTextField by mutableStateOf("05:00")
+    var startTime by mutableLongStateOf(getTimeInMillis(hour = 5, minute = 0))
+    var endTime by mutableLongStateOf(getTimeInMillis(hour = 22, minute = 59))
+    var endTimeTextField by mutableStateOf("22:59")
     var timeToRemainder by mutableStateOf("15")
     var waterAmount by mutableStateOf("250")
     var editInputs by mutableStateOf(false)
@@ -49,9 +49,10 @@ class MainScreenUtilsViewModels @Inject constructor(
 
 
     fun onClickCheck(context: Context){
-        if (startTimeTextField.isEmpty() || !timePattern.matcher(startTimeTextField).matches()) {
-            startTime = getTimeInMillis(hour = 0, minute = 0)
-            startTimeTextField = getTimeInPattern(getTimeInMillis(hour = 0, minute = 0))
+        if (startTimeTextField.isEmpty() || !timePattern.matcher(startTimeTextField).matches()
+            || (timePattern.matcher(startTimeTextField).matches() && startTimeTextField < "05:00")) {
+            startTime = getTimeInMillis(hour = 5, minute = 0)
+            startTimeTextField = "05:00"
             viewModelScope.launch {
                 timingsStore.changeStartTime(startTime)
             }
@@ -64,9 +65,10 @@ class MainScreenUtilsViewModels @Inject constructor(
                 timingsStore.changeStartTime(startTime)
             }
         }
-        if (endTimeTextField.isEmpty() || !timePattern.matcher(endTimeTextField).matches()) {
-            endTime = getTimeInMillis(hour = 23, minute = 59)
-            endTimeTextField = getTimeInPattern(getTimeInMillis(hour = 23, minute = 59))
+        if (endTimeTextField.isEmpty() || !timePattern.matcher(endTimeTextField).matches()
+            || (timePattern.matcher(endTimeTextField).matches() && endTimeTextField > "22:59")) {
+            endTime = getTimeInMillis(hour = 22, minute = 59)
+            endTimeTextField = "22:59"
             viewModelScope.launch {
                 timingsStore.changeEndTime(endTime)
             }

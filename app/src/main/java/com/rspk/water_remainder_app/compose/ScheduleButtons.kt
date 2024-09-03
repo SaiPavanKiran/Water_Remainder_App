@@ -1,5 +1,6 @@
 package com.rspk.water_remainder_app.compose
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -19,11 +20,16 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.rspk.water_remainder_app.R
+import com.rspk.water_remainder_app.service.NotificationService
 import com.rspk.water_remainder_app.viewmodels.MainScreenUtilsViewModels
 import com.rspk.water_remainder_app.work.TimelyWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
 private const val WORKER_UNIQUE_NAME = "timelyWork"
@@ -71,6 +77,10 @@ fun ScheduleButtons(
                     onClick()
                     onClickChanged(false)
                 }
+                Intent(context, NotificationService::class.java).also {
+                    it.action = "STOP"
+                    context.startService(it)
+                }
             }
         }) {
             Text(text = if (editInputs) stringResource(id = R.string.stop_editing_inputs) else stringResource(id = R.string.edit_inputs))
@@ -86,8 +96,16 @@ fun ScheduleButtons(
                         && mainScreenViewModel.getTimeInPattern(startTime) == startTimeTextField && mainScreenViewModel.getTimeInPattern(endTime) == endTimeTextField) {
 
                         workManager.enqueueUniquePeriodicWork(WORKER_UNIQUE_NAME, ExistingPeriodicWorkPolicy.UPDATE, workRequest)
+                        Intent(context, NotificationService::class.java).also {
+                            it.action = "START"
+                            context.startService(it)
+                        }
                     } else {
                         workManager.cancelUniqueWork(WORKER_UNIQUE_NAME)
+                        Intent(context, NotificationService::class.java).also {
+                            it.action = "STOP"
+                            context.startService(it)
+                        }
                     }
                 }
             },

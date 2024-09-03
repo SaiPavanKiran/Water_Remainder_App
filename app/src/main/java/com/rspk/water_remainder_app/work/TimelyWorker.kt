@@ -1,10 +1,16 @@
 package com.rspk.water_remainder_app.work
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -17,6 +23,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.rspk.water_remainder_app.MainActivity
 import com.rspk.water_remainder_app.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -30,7 +37,19 @@ class TimelyWorker(
     context: Context,
     params: WorkerParameters
 ):CoroutineWorker(context,params) {
+
+    companion object{
+        const val NOTIFICATION_ID = 2
+        const val CHANNEL_ID = "water_remainder"
+        const val CHANNEL_NAME = "Water Remainder"
+        const val ACTION_DONE = "com.rspk.water_remainder_app.DONE_ACTION"
+        const val ACTIVITY_REQUEST_CODE = 101
+        const val BROADCAST_REQUEST_CODE = 102
+
+    }
+
     private val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
 
     override suspend fun doWork(): Result {
 
@@ -38,43 +57,22 @@ class TimelyWorker(
         val endTime = inputData.getLong("endTime",0L)
         val waterAmount = inputData.getInt("waterAmount",0)
         val currentTime = System.currentTimeMillis()
-        val workManager = WorkManager.getInstance(applicationContext)
-        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .addTag("water_remainder")
-            .apply {
-                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S){
-                    this@apply.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                        .setBackoffCriteria(
-                            backoffPolicy = BackoffPolicy.LINEAR,
-                            duration = Duration.ofSeconds(15)
-                        )
-                }
-            }
-            .build()
-        if(LocalTime.now().hour == 23 || LocalTime.now().hour in 0..4){
-            applicationContext.contentResolver.delete(
-                MediaStore.Files.getContentUri("external"),
-                "${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?",
-                arrayOf("daily_list %")
-            )
-        }
+
         return if(LocalTime.now() in LocalTime.of(getTimeInPatternForHour(startTime),getTimeInPatternForMinute(startTime))..
             LocalTime.of(getTimeInPatternForHour(endTime),getTimeInPatternForMinute(endTime))){
             withContext(Dispatchers.IO){
-                coroutineScope {
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S){
-                        setForeground(createForeground(title = "Water Remainder", text = "running..."))
-                    }
-                }
-                coroutineScope {
-                    workManager.enqueue(workRequest)
-                }
+                notification()
                 externalStorage(currentTime= currentTime, waterAmount = waterAmount)
             }
             Result.success()
         }else {
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
-                setForeground(createForeground(title = "Checking Criteria" , text = "Criteria not met"))
+            if(LocalTime.now().hour == 23 || LocalTime.now().hour in 0..4){
+                applicationContext.contentResolver.delete(
+                    MediaStore.Files.getContentUri("external"),
+                    "${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?",
+                    arrayOf("daily_list %")
+                )
+            }
             Result.success()
         }
     }
@@ -120,26 +118,67 @@ class TimelyWorker(
             }
         }
 
-
     }
 
-    private fun createForeground(title:String,text:String ):ForegroundInfo{
-//        val intent = WorkManager.getInstance(applicationContext).createCancelPendingIntent(workRequestId)
-        val notificationChannel = NotificationChannel(
-            "foreground",
-            "foreground_service",
-            NotificationManager.IMPORTANCE_LOW
-        )
-        notificationManager.createNotificationChannel(notificationChannel)
-        val notification = NotificationCompat.Builder(applicationContext,"foreground")
-            .setSmallIcon(R.drawable.baseline_water_drop_24)
-            .setAutoCancel(false)
-            .setContentTitle(title)
-            .setContentText(text)
-//            .addAction(R.drawable.baseline_send_24,"Stop Foreground",intent)
+
+
+    private fun notificationChannel(){
+        val soundUri: Uri = Uri.Builder()
+            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+            .authority(applicationContext.resources.getResourcePackageName(R.raw.notify))
+            .appendPath(applicationContext.resources.getResourceTypeName(R.raw.notify))
+            .appendPath(applicationContext.resources.getResourceEntryName(R.raw.notify))
             .build()
 
-        return ForegroundInfo(34,notification)
+        Log.d("soundUri",soundUri.toString())
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)  // Use for notifications
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            setSound(soundUri,audioAttributes)
+        }
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun notification(){
+        notificationChannel()
+
+        val soundUri: Uri = Uri.Builder()
+            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+            .authority(applicationContext.resources.getResourcePackageName(R.raw.notify))
+            .appendPath(applicationContext.resources.getResourceTypeName(R.raw.notify))
+            .appendPath(applicationContext.resources.getResourceEntryName(R.raw.notify))
+            .build()
+
+
+        val pendingIntent = PendingIntent.getActivity(applicationContext, ACTIVITY_REQUEST_CODE,
+            Intent(applicationContext, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE)
+
+        val doneActionPendingIntent = PendingIntent.getBroadcast(applicationContext, BROADCAST_REQUEST_CODE,
+            Intent(ACTION_DONE),
+            PendingIntent.FLAG_IMMUTABLE)
+
+
+        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+            .setSmallIcon(R.drawable.water_glass_svgrepo_com)
+            .setContentTitle("Water Remainder")
+            .setContentText("It's Time to Drink Water")
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setSound(soundUri)
+            .addAction(R.drawable.baseline_send_24,applicationContext.resources.getString(R.string.done),doneActionPendingIntent)
+            .build()
+
+        notification.color = applicationContext.resources.getColor(R.color.notification_color,applicationContext.theme)
+        notificationManager.notify(NOTIFICATION_ID,notification)
     }
 
     private fun getTimeInPatternForHour(time:Long):Int{

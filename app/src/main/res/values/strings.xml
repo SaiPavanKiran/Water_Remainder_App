@@ -34,7 +34,7 @@
         &#8226;Hey there! 😊 Thanks for using our app! We hope you like it so far.\n\n
         &#8226;This is an open-source app, and we encourage you to make it your own! If you’re interested in customizing it, feel free to clone the code from our repository, add new features, and submit a pull request. We love seeing new contributions and ideas! 🌟\n\n
         &#8226;Just a heads-up: the app might have occasional crashes or glitches. It\'s not the most optimized version yet, but it generally works fine for most use cases. 🚀\n\n
-        &#8226;We\'ve used amazing free resources like FreePik and SVGRepo for images and icons. A big thanks to them for their fantastic tools! 🙏\n\n
+        &#8226;We\'ve used amazing free resources like FreePik and SVGRepo for images and icons and also thanks to UNIVERSFIELD for audio. A big thanks to them for their fantastic tools! 🙏\n\n
         &#8226;We\'d love to hear your thoughts! Leave a comment on our GitHub – let us know if you like it or what you\'d want improved. Your feedback helps us make the app better! 😊</string>
     <string name="notification_permission_alert">Posting Notification Permission is crucial for this app</string>
     <string name="storage_permission_alert">Storage Permission is crucial for this app</string>
